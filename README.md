@@ -1,14 +1,14 @@
 # SevaFlow AI
 
-SevaFlow AI is a local-first AI product website that demonstrates how unstructured community and volunteer requests can be converted into structured operational tasks using prompt engineering, schema validation, and AI-style classification.
+A local-first AI product website that turns informal community and volunteer requests into structured, actionable tasks. Built as a portfolio project demonstrating applied AI, prompt engineering, schema validation, and full-stack TypeScript — with no database, no API key, and no login required.
 
-Built for temple, nonprofit, and community organizations that coordinate hundreds of volunteers over WhatsApp and informal channels — with no unified task system.
+> Built by [Nikniv2007](https://github.com/Nikniv2007)
 
 ---
 
-## Overview
+## What It Is
 
-SevaFlow AI turns an informal message like this:
+SevaFlow AI converts an informal message like this:
 
 > *"Radhe Radhe, we need 5 volunteers for Sunday prasad serving before 9 AM"*
 
@@ -33,18 +33,18 @@ The site runs fully on `localhost` — no database, no API key, no cloud account
 
 ## The Problem
 
-Community organizations rely on informal communication to coordinate volunteers and events:
+Community and temple organizations coordinate hundreds of volunteers using informal channels:
 
 - Requests arrive via **WhatsApp, SMS, phone calls, and in-person** — with no central record
 - Follow-ups get **lost in group chats** that nobody re-reads
-- Volunteer role assignment is **done manually** with spreadsheets and guesswork
-- Event coordinators spend **8+ hours per week** triaging requests that should be self-service
+- Volunteer role assignment is **done manually** with no single source of truth
+- Coordinators spend **8+ hours per week** triaging requests that should be self-service
 
 ---
 
 ## The Solution
 
-SevaFlow AI addresses these problems with two workflows:
+Two workflows, fully functional, fully local:
 
 **AI Request Classifier** — converts informal community messages into structured tasks with category, priority, suggested owner, and next action.
 
@@ -52,7 +52,7 @@ SevaFlow AI addresses these problems with two workflows:
 
 ---
 
-## Live Features
+## Live Routes
 
 | Route | Description |
 |---|---|
@@ -65,11 +65,41 @@ SevaFlow AI addresses these problems with two workflows:
 
 ---
 
+## Running Locally
+
+```bash
+git clone https://github.com/Nikniv2007/SevaFlow_AI.git
+cd SevaFlow_AI
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+No API key, database, or environment configuration required.
+
+---
+
+## Running Tests
+
+```bash
+npm run test
+```
+
+**65 tests across 4 files — all passing:**
+
+| File | Tests | What It Covers |
+|---|---|---|
+| `tests/schema.test.ts` | 15 | Zod schema validation for all schemas |
+| `tests/classifier.test.ts` | 14 | Mock classifier accuracy and keyword matching |
+| `tests/volunteer-storage.test.ts` | 21 | Storage logic, pure functions, SSR safety |
+| `tests/evals.test.ts` | 15 | Eval runner shape, pass rate, subset injection, pass/fail accuracy |
+
+---
+
 ## Volunteer Assignment Portal
 
-SevaFlow AI includes a local-first volunteer assignment flow where volunteers can select open event roles, view their current assignment, change to another open spot, or release their assignment if they are no longer available.
-
-**The full flow:**
+Local-first, self-service volunteer assignment flow:
 
 1. **Browse** — view all 6 seva roles with real-time spot counts, time, location, and skill level badges
 2. **Select** — click any open role to open the signup form (full roles are disabled)
@@ -93,40 +123,6 @@ All state persists in `localStorage` with SSR-safe guards. No login or backend r
 | Validation | Zod | 4.4.3 |
 | Testing | Vitest | 4.1.9 |
 | Persistence | localStorage | SSR-safe |
-
----
-
-## Features
-
-### AI Request Classification
-- Classifies community requests into 8 categories: Volunteer Scheduling, Feedback, Event Logistics, Communication, Follow Up, Technical Help, Donation Support, Other
-- Assigns Low / Medium / High priority based on keyword detection
-- Generates a summary (≤90 chars), suggested owner role, and next action
-- Returns a confidence score between 0.0 and 1.0
-- Validates every output against `ClassifierOutputSchema` (Zod)
-- Runs in mock mode with no API key, or with a real LLM via `ANTHROPIC_API_KEY`
-
-### Interactive Demo
-- Live textarea input with 8 pre-loaded sample community requests
-- 480ms simulated processing for realistic UX feedback
-- Structured result card with category/priority badges, confidence bar, and 2-col field layout
-- Dark terminal JSON output with per-token syntax highlighting and one-click copy
-
-### Volunteer Assignment Portal
-- 6 open seva roles with skill badges, time slots, spot counts, and descriptions
-- Select → Sign Up → Confirmed → Change / Release flow
-- Inline release confirmation — no separate page or modal
-- Atomic change-assignment: release old spot and fill new spot in one operation
-- Dynamic status badges: Open / Almost Full / Full
-- SSR-safe with `typeof window !== "undefined"` guards throughout
-
-### Evaluation System
-- 10 predefined test cases hand-labelled across all 8 classifier categories
-- Schema validation on every output using `ClassifierOutputSchema.safeParse()`
-- Category match + priority match comparison against expected values
-- Pass rate, total, passed, failed, and `allSchemaValid` aggregate metrics
-- Results table with per-field ✓/✗ indicators and pass/fail badges
-- Runs server-side on every page load — no caching, always live
 
 ---
 
@@ -175,38 +171,6 @@ Schema failures auto-fail all three checks.
 
 ---
 
-## Running Locally
-
-```bash
-git clone https://github.com/Nikniv2007/SevaFlow_AI.git
-cd SevaFlow_AI
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-No API key, database, or environment configuration required.
-
----
-
-## Running Tests
-
-```bash
-npm run test
-```
-
-**60 tests across 4 test files — all passing:**
-
-| File | Tests | Coverage |
-|---|---|---|
-| `tests/schema.test.ts` | 15 | Zod schema validation for all schemas |
-| `tests/classifier.test.ts` | 14 | Mock classifier accuracy and keyword matching |
-| `tests/volunteer-storage.test.ts` | 20 | Storage logic, pure functions, SSR safety |
-| `tests/evals.test.ts` | 11 | Eval runner shape, pass rate, subset injection |
-
----
-
 ## Project Structure
 
 ```
@@ -214,20 +178,20 @@ app/
 ├── page.tsx                    # Home — hero, problem, solution, AI demo, skills
 ├── layout.tsx                  # Root layout: Navbar + Footer
 ├── demo/page.tsx               # Full interactive AI classifier demo
-├── volunteer/page.tsx          # Volunteer Assignment Portal (server wrapper)
+├── volunteer/page.tsx          # Volunteer Assignment Portal
 ├── evals/page.tsx              # AI Evaluation Results (async server component)
 ├── docs/page.tsx               # Technical documentation (9 sections)
 └── case-study/page.tsx         # Product case study (10 sections)
 
 components/
 ├── Navbar.tsx                  # Sticky responsive navigation
-├── Footer.tsx                  # Site footer
+├── Footer.tsx                  # Site footer with GitHub attribution
 ├── Badge.tsx                   # Reusable colored label badge
 ├── Hero.tsx                    # Home hero section
 ├── ProblemSection.tsx          # Problem statement cards
 ├── SolutionSection.tsx         # Feature list + live JSON visualization
 ├── HowItWorks.tsx              # 4-step AI workflow explainer
-├── DemoSection.tsx             # Home AI demo section (server wrapper)
+├── DemoSection.tsx             # Home AI demo section with pipeline strip
 ├── InteractiveDemo.tsx         # [client] textarea, samples, classifier, result card
 ├── JsonOutput.tsx              # [client] dark terminal JSON syntax highlighter
 ├── VolunteerPortalPreview.tsx  # Home volunteer section preview
@@ -257,14 +221,8 @@ lib/
 tests/
 ├── schema.test.ts              # 15 tests — Zod schemas
 ├── classifier.test.ts          # 14 tests — classifier accuracy
-├── volunteer-storage.test.ts   # 20 tests — storage logic + SSR safety
-└── evals.test.ts               # 11 tests — eval runner
-
-docs/
-├── product-scope.md            # Problem, users, user stories, MVP scope, non-goals
-├── architecture.md             # Detailed technical architecture reference
-├── evals.md                    # Evaluation system deep-dive
-└── handoff.md                  # Developer onboarding and extension guide
+├── volunteer-storage.test.ts   # 21 tests — storage logic + SSR safety
+└── evals.test.ts               # 15 tests — eval runner + pass/fail accuracy
 ```
 
 ---
@@ -276,6 +234,7 @@ docs/
 - Structured JSON output enforcement via prompt engineering
 - Zod schema validation on every model response
 - Mock fallback that mirrors the exact same interface as a real LLM call
+- Ready for `ANTHROPIC_API_KEY` swap with zero changes to the pipeline
 
 ### Functional Web Apps & Tools
 - Next.js App Router with server and client component split
@@ -291,15 +250,14 @@ docs/
 - Generates specific next actions
 - Assigns priority from keyword detection
 - Volunteer assignment selection with dynamic availability
-- Automatic spot availability updates on every sign-up, change, and release
-- Releasing and switching assignments without coordinator involvement
+- Atomic spot management: release old spot and fill new spot in one operation
 - Reduces manual coordinator follow-up for the most common request types
 
 ### AI Evaluations & Testing
 - 10 evaluation test cases with hand-labelled expected values
 - Pass/fail scoring: schema valid + category match + priority match
 - Zod-validated output on every classifier call
-- 60 Vitest tests across 4 test files
+- 65 Vitest tests across 4 test files
 
 ### Prompt Engineering
 - Few-shot examples guiding tone, format, and edge case behavior
@@ -323,11 +281,10 @@ docs/
 ### System Ownership
 - Organized file structure with clear separation of concerns
 - Documentation: `README.md`, `FEATURES.md`, `ARCHITECTURE.md`, `EVALS.md`, `docs/`
-- 60 tests covering schemas, classifier logic, storage helpers, and eval runner
+- 65 tests covering schemas, classifier logic, storage helpers, and eval runner
 - Error handling at every system boundary — schema validation, storage guards, form validation
 - Handoff-ready with developer guide in `docs/handoff.md`
 - Pure functions separated from localStorage for testability without jsdom
-- No database dependency — persistence layer is swappable without changing business logic
 
 ### Adaptability & Mission Alignment
 - Built for community, nonprofit, temple, and volunteer organizations

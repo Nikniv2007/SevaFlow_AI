@@ -52,10 +52,18 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs">
-            &copy; {new Date().getFullYear()} SevaFlow AI. All rights reserved.
+            &copy; {new Date().getFullYear()} SevaFlow AI. Built by{" "}
+            <a
+              href="https://github.com/Nikniv2007"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              Nikniv2007
+            </a>
           </p>
           <p className="text-xs">
-            Built with Next.js, TypeScript &amp; Tailwind CSS
+            Next.js · TypeScript · Tailwind CSS · Zod · Vitest
           </p>
         </div>
       </div>
