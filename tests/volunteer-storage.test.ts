@@ -130,6 +130,21 @@ describe("applySignup / applyRelease", () => {
     assignments = applyRelease(assignments, id);
     expect(assignments.find((a) => a.id === id)!.filledSpots).toBe(0);
   });
+
+  it("releasing clears the volunteer spot and restores canSignup to original state", () => {
+    const id = "guest-checkin"; // totalSpots: 2, filledSpots: 1 → 1 open
+
+    // Volunteer signs up (fills last spot → Full)
+    let state = applySignup(INITIAL_ASSIGNMENTS, id);
+    expect(state.find((a) => a.id === id)!.filledSpots).toBe(2);
+    expect(canSignup(state.find((a) => a.id === id)!)).toBe(false); // now Full
+
+    // Volunteer releases → spot restored
+    state = applyRelease(state, id);
+    expect(state.find((a) => a.id === id)!.filledSpots).toBe(1);
+    expect(canSignup(state.find((a) => a.id === id)!)).toBe(true); // open again
+    expect(getOpenSpots(state.find((a) => a.id === id)!)).toBe(1);
+  });
 });
 
 describe("sample data integrity", () => {

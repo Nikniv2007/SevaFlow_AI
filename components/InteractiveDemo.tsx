@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { classifyRequest } from "@/lib/classifier";
-import { ClassifierInputSchema } from "@/lib/schemas";
+import { ClassifierInputSchema, ClassifierOutputSchema } from "@/lib/schemas";
 import type { ClassifierOutput } from "@/lib/schemas";
 import JsonOutput from "./JsonOutput";
 
@@ -90,7 +90,7 @@ export default function InteractiveDemo() {
 
     const parsed = ClassifierInputSchema.safeParse({ description: trimmed });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Invalid input.");
+      setError(parsed.error.issues[0]?.message ?? "Your input could not be validated. Please check it and try again.");
       return;
     }
 
@@ -98,10 +98,22 @@ export default function InteractiveDemo() {
     try {
       // Brief artificial delay so the loading state is visible
       await new Promise((r) => setTimeout(r, 480));
-      const output = await classifyRequest(parsed.data);
-      setResult(output);
+      const raw = await classifyRequest(parsed.data);
+
+      // Validate that the classifier output matches the expected schema
+      const validation = ClassifierOutputSchema.safeParse(raw);
+      if (!validation.success) {
+        setError(
+          "The classifier returned an unexpected response format. Please try again."
+        );
+        return;
+      }
+
+      setResult(validation.data);
     } catch {
-      setError("Classification failed. Please try again.");
+      setError(
+        "Something went wrong while classifying your request. Please try again in a moment."
+      );
     } finally {
       setLoading(false);
     }

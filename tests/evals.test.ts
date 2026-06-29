@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { runEvals } from "@/lib/evals/run-evals";
 import { TEST_CASES } from "@/lib/evals/test-cases";
+import type { EvalTestCase } from "@/lib/evals/test-cases";
 
 describe("runEvals", () => {
   it("returns results for every test case", async () => {
@@ -79,5 +80,55 @@ describe("runEvals", () => {
     expect(summary.failed).toBeGreaterThanOrEqual(0);
     expect(Number.isInteger(summary.passed)).toBe(true);
     expect(Number.isInteger(summary.failed)).toBe(true);
+  });
+});
+
+describe("runEvals — pass/fail result accuracy", () => {
+  it("a correctly-labelled test case is marked Pass", async () => {
+    const passingCase: EvalTestCase = {
+      id: "TEST-PASS",
+      input: "We need a volunteer for the afternoon shift at the entrance.",
+      expectedCategory: "Volunteer Scheduling",
+      expectedPriority: "Low",
+    };
+    const summary = await runEvals([passingCase]);
+    expect(summary.results[0].passed).toBe(true);
+    expect(summary.results[0].categoryMatch).toBe(true);
+    expect(summary.results[0].priorityMatch).toBe(true);
+    expect(summary.passed).toBe(1);
+    expect(summary.failed).toBe(0);
+  });
+
+  it("a test case with the wrong expected category is marked Fail", async () => {
+    const wrongCategory: EvalTestCase = {
+      id: "TEST-FAIL-CAT",
+      input: "We need a volunteer for the afternoon shift at the entrance.",
+      expectedCategory: "Other", // classifier returns "Volunteer Scheduling"
+      expectedPriority: "Low",
+    };
+    const summary = await runEvals([wrongCategory]);
+    expect(summary.results[0].passed).toBe(false);
+    expect(summary.results[0].categoryMatch).toBe(false);
+    expect(summary.passed).toBe(0);
+    expect(summary.failed).toBe(1);
+  });
+
+  it("a test case with the wrong expected priority is marked Fail", async () => {
+    const wrongPriority: EvalTestCase = {
+      id: "TEST-FAIL-PRI",
+      input: "We need a volunteer for the afternoon shift at the entrance.",
+      expectedCategory: "Volunteer Scheduling",
+      expectedPriority: "High", // classifier returns "Low" — no urgency keywords
+    };
+    const summary = await runEvals([wrongPriority]);
+    expect(summary.results[0].passed).toBe(false);
+    expect(summary.results[0].priorityMatch).toBe(false);
+    expect(summary.failed).toBe(1);
+  });
+
+  it("all 10 current mock test cases pass", async () => {
+    const summary = await runEvals();
+    expect(summary.passed).toBe(TEST_CASES.length);
+    expect(summary.passRate).toBe(1);
   });
 });

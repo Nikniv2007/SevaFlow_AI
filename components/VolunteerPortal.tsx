@@ -34,8 +34,18 @@ export default function VolunteerPortal() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [storageAvailable, setStorageAvailable] = useState(true);
 
   useEffect(() => {
+    // Detect if localStorage is accessible (blocked in some private browsing modes)
+    try {
+      const testKey = "__sevaflow_storage_test__";
+      localStorage.setItem(testKey, "1");
+      localStorage.removeItem(testKey);
+    } catch {
+      setStorageAvailable(false);
+    }
+
     const saved = getAssignments();
     const current = getCurrentVolunteerAssignment();
     setAssignments(saved);
@@ -53,7 +63,11 @@ export default function VolunteerPortal() {
 
   function handleSelectAssignment(id: string) {
     const a = assignments.find((x) => x.id === id);
-    if (!a || !canSignup(a)) return;
+    if (!a) return;
+    if (!canSignup(a)) {
+      showToast("error", "This role is now full. Please choose another open seva role.");
+      return;
+    }
     setSelectedId(id);
     setView("signup");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -138,6 +152,22 @@ export default function VolunteerPortal() {
   return (
     <section id="assignments" className="py-16 px-4 bg-slate-50 min-h-[600px]">
       <div className="max-w-5xl mx-auto">
+
+        {/* Storage unavailable warning */}
+        {!storageAvailable && (
+          <div className="mb-6 flex items-start gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50 text-sm text-amber-800">
+            <svg className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+            <div>
+              <p className="font-semibold mb-0.5">Local storage is unavailable</p>
+              <p className="text-amber-700 text-xs">
+                Your browser is blocking local storage — your assignment will not be saved between sessions.
+                This can happen in private browsing mode or when cookies are blocked.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Toast notification */}
         {toast && (

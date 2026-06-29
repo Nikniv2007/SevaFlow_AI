@@ -8,7 +8,38 @@ export const metadata = {
 };
 
 export default async function EvalsPage() {
-  const summary = await runEvals();
+  let summary;
+  try {
+    summary = await runEvals();
+  } catch {
+    return (
+      <div className="min-h-screen bg-white">
+        <section className="bg-slate-900 text-white py-16 px-4">
+          <div className="max-w-5xl mx-auto">
+            <span className="inline-block px-3 py-1 rounded-full border border-slate-600 bg-slate-800 text-slate-300 text-xs font-semibold uppercase tracking-widest mb-5">
+              Model Evals
+            </span>
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+              AI Evaluation Results
+            </h1>
+          </div>
+        </section>
+        <div className="max-w-5xl mx-auto px-4 py-14">
+          <div className="rounded-2xl border border-red-100 bg-red-50 p-8 text-center">
+            <p className="text-lg font-semibold text-red-800 mb-2">
+              Evaluation run failed
+            </p>
+            <p className="text-sm text-red-600 max-w-md mx-auto">
+              The evaluation suite could not complete. This may be a temporary
+              issue — try refreshing the page. If the problem persists, check
+              that the classifier is configured correctly.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const pct = Math.round(summary.passRate * 100);
 
   const rateColor =

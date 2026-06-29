@@ -67,7 +67,11 @@ export function getAssignments(): VolunteerAssignment[] {
 
 export function saveAssignments(assignments: VolunteerAssignment[]): void {
   if (!isClient()) return;
-  localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignments));
+  try {
+    localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignments));
+  } catch {
+    // Storage quota exceeded or private browsing restriction — fail silently
+  }
 }
 
 export function getCurrentVolunteerAssignment(): CurrentVolunteerAssignment | null {
@@ -85,9 +89,12 @@ export function saveCurrentVolunteerAssignment(
   assignment: CurrentVolunteerAssignment
 ): void {
   if (!isClient()) return;
-  // Validate before persisting
   CurrentVolunteerAssignmentSchema.parse(assignment);
-  localStorage.setItem(CURRENT_KEY, JSON.stringify(assignment));
+  try {
+    localStorage.setItem(CURRENT_KEY, JSON.stringify(assignment));
+  } catch {
+    // Storage quota exceeded or private browsing restriction — fail silently
+  }
 }
 
 export function releaseCurrentVolunteerAssignment(): void {
