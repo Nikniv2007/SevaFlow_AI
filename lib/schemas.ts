@@ -56,3 +56,29 @@ export const ClassifierOutputSchema = z.object({
 
 export type ClassifierInput = z.infer<typeof ClassifierInputSchema>;
 export type ClassifierOutput = z.infer<typeof ClassifierOutputSchema>;
+
+// ── Volunteer Portal ───────────────────────────────────────────────────────────
+
+export const VolunteerAssignmentSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  time: z.string(),
+  location: z.string(),
+  description: z.string(),
+  skillLevel: z.enum(["Easy", "Medium", "Experienced"]),
+  totalSpots: z.number().int().positive(),
+  filledSpots: z.number().int().min(0),
+});
+
+export const VolunteerAssignmentsSchema = z.array(VolunteerAssignmentSchema);
+
+export const CurrentVolunteerAssignmentSchema = z.object({
+  volunteerName: z.string().min(1, "Name is required"),
+  contact: z.string().min(1, "Contact is required"),
+  note: z.string().optional(),
+  assignmentId: z.string(),
+  assignedAt: z.string(),
+});
+
+export type VolunteerAssignment = z.infer<typeof VolunteerAssignmentSchema>;
+export type CurrentVolunteerAssignment = z.infer<typeof CurrentVolunteerAssignmentSchema>;
