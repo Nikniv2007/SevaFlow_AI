@@ -1,84 +1,238 @@
-import Badge from "@/components/Badge";
+import { runEvals } from "@/lib/evals/run-evals";
+import EvalTable from "@/components/EvalTable";
 
 export const metadata = {
-  title: "Evaluations — SevaFlow AI",
-  description: "Review and rate volunteer engagements to improve future AI matching quality.",
+  title: "AI Evaluation Results — SevaFlow AI",
+  description:
+    "Testing whether the SevaFlow AI classifier returns valid JSON, accurate categories, and useful priorities across 10 predefined community request inputs.",
 };
 
-export default function EvalsPage() {
-  const sampleEvals = [
-    { id: "EVL-001", volunteer: "Maya Patel", org: "City Food Bank", rating: 5, date: "2026-06-15", skill: "Data Analysis" },
-    { id: "EVL-002", volunteer: "Carlos Rivera", org: "Youth Literacy Org", rating: 4, date: "2026-06-12", skill: "Education" },
-    { id: "EVL-003", volunteer: "Sarah Chen", org: "Animal Rescue Network", rating: 5, date: "2026-06-08", skill: "Web Dev" },
-  ];
+export default async function EvalsPage() {
+  const summary = await runEvals();
+  const pct = Math.round(summary.passRate * 100);
+
+  const rateColor =
+    pct >= 90
+      ? "text-emerald-600"
+      : pct >= 70
+      ? "text-amber-600"
+      : "text-red-600";
+
+  const rateRingColor =
+    pct >= 90
+      ? "bg-emerald-50 border-emerald-200"
+      : pct >= 70
+      ? "bg-amber-50 border-amber-200"
+      : "bg-red-50 border-red-100";
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-16">
-      <div className="text-center mb-12">
-        <Badge variant="purple">Evaluations</Badge>
-        <h1 className="mt-4 text-4xl font-bold text-gray-900">
-          Engagement Evaluations
-        </h1>
-        <p className="mt-4 text-gray-500 max-w-xl mx-auto">
-          Post-engagement ratings and structured feedback that continuously improve AI matching quality.
-        </p>
-      </div>
+    <div className="min-h-screen bg-white">
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
-        {[
-          { label: "Total Evaluations", value: "3", color: "text-blue-600" },
-          { label: "Average Rating", value: "4.7 / 5", color: "text-emerald-600" },
-          { label: "Match Accuracy", value: "94%", color: "text-purple-600" },
-        ].map((stat) => (
-          <div key={stat.label} className="p-6 rounded-2xl border border-gray-100 bg-gray-50 text-center">
-            <div className={`text-3xl font-bold mb-1 ${stat.color}`}>{stat.value}</div>
-            <div className="text-sm text-gray-500">{stat.label}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden mb-10">
-        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-800">Recent Evaluations</h2>
-          <Badge variant="gray">Sample Data</Badge>
+      {/* ── Hero header ── */}
+      <section className="bg-slate-900 text-white py-16 px-4">
+        <div className="max-w-5xl mx-auto">
+          <span className="inline-block px-3 py-1 rounded-full border border-slate-600 bg-slate-800 text-slate-300 text-xs font-semibold uppercase tracking-widest mb-5">
+            Model Evals
+          </span>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+            AI Evaluation Results
+          </h1>
+          <p className="text-slate-400 text-lg max-w-2xl leading-relaxed">
+            Testing whether the classifier returns valid JSON, accurate categories,
+            and useful priorities across 10 predefined community request inputs.
+          </p>
         </div>
-        <div className="divide-y divide-gray-50">
-          {sampleEvals.map((ev) => (
-            <div key={ev.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-              <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs font-mono text-gray-400">{ev.id}</span>
-                  <Badge variant="blue">{ev.skill}</Badge>
-                </div>
-                <p className="text-sm font-medium text-gray-800">{ev.volunteer}</p>
-                <p className="text-xs text-gray-400">{ev.org} · {ev.date}</p>
+      </section>
+
+      <div className="max-w-5xl mx-auto px-4 py-14 space-y-14">
+
+        {/* ── Why evals matter ── */}
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+            Why AI Evaluations Matter
+          </h2>
+          <div className="prose prose-gray max-w-none">
+            <p className="text-gray-600 leading-relaxed mb-3">
+              In production AI systems, correctness cannot be assumed — it must be measured.
+              Even a well-prompted classifier can fail on edge cases, return structurally invalid
+              JSON, or assign the wrong priority to time-sensitive requests. Evaluations create a
+              repeatable test harness that catches regressions before they reach real users.
+            </p>
+            <p className="text-gray-600 leading-relaxed">
+              SevaFlow AI runs each input through the request classifier, validates the output
+              against a strict Zod schema, then compares the predicted category and priority
+              against a hand-labelled ground truth. A result is only marked{" "}
+              <span className="font-semibold text-emerald-700">Pass</span> if all three checks
+              pass simultaneously — schema validation, category accuracy, and priority accuracy.
+            </p>
+          </div>
+        </section>
+
+        {/* ── Metrics ── */}
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+            Run Summary
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {/* Total */}
+            <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5 text-center">
+              <div className="font-mono text-3xl font-bold text-gray-900 mb-1">
+                {summary.total}
               </div>
-              <div className="text-right">
-                <div className="flex items-center gap-0.5 justify-end mb-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <svg
-                      key={i}
-                      className={`w-4 h-4 ${i < ev.rating ? "text-amber-400" : "text-gray-200"}`}
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <span className="text-xs text-gray-400">{ev.rating}.0 / 5</span>
+              <div className="text-xs text-gray-500 font-medium">Total Tests</div>
+            </div>
+
+            {/* Passed */}
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center">
+              <div className="font-mono text-3xl font-bold text-emerald-700 mb-1">
+                {summary.passed}
+              </div>
+              <div className="text-xs text-emerald-600 font-medium">Passed</div>
+            </div>
+
+            {/* Failed */}
+            <div className={`rounded-2xl border p-5 text-center ${
+              summary.failed === 0
+                ? "border-gray-100 bg-gray-50"
+                : "border-red-100 bg-red-50"
+            }`}>
+              <div className={`font-mono text-3xl font-bold mb-1 ${
+                summary.failed === 0 ? "text-gray-400" : "text-red-600"
+              }`}>
+                {summary.failed}
+              </div>
+              <div className={`text-xs font-medium ${
+                summary.failed === 0 ? "text-gray-400" : "text-red-500"
+              }`}>
+                Failed
               </div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-10 text-center">
-        <div className="text-3xl mb-3">📝</div>
-        <h2 className="text-lg font-semibold text-gray-700 mb-2">Submit a New Evaluation</h2>
-        <p className="text-gray-400 text-sm">
-          Evaluation form with Zod-validated fields coming soon.
-        </p>
+            {/* Pass rate */}
+            <div className={`rounded-2xl border p-5 text-center ${rateRingColor}`}>
+              <div className={`font-mono text-3xl font-bold mb-1 ${rateColor}`}>
+                {pct}%
+              </div>
+              <div className={`text-xs font-medium ${rateColor}`}>Pass Rate</div>
+            </div>
+
+            {/* Schema */}
+            <div className={`rounded-2xl border p-5 text-center ${
+              summary.allSchemaValid
+                ? "border-emerald-200 bg-emerald-50"
+                : "border-red-100 bg-red-50"
+            }`}>
+              <div className={`text-3xl font-bold mb-1 ${
+                summary.allSchemaValid ? "text-emerald-600" : "text-red-500"
+              }`}>
+                {summary.allSchemaValid ? "✓" : "✗"}
+              </div>
+              <div className={`text-xs font-medium ${
+                summary.allSchemaValid ? "text-emerald-600" : "text-red-500"
+              }`}>
+                Schema Valid
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Results table ── */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+              Detailed Results
+            </h2>
+            <span className="text-xs font-mono text-gray-400">
+              {summary.passed}/{summary.total} passing
+            </span>
+          </div>
+          <EvalTable results={summary.results} />
+        </section>
+
+        {/* ── Methodology ── */}
+        <section className="border-t border-gray-100 pt-12">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+            How Pass / Fail Is Calculated
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Each test case defines an{" "}
+                <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-xs text-gray-700">
+                  expectedCategory
+                </span>{" "}
+                and{" "}
+                <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-xs text-gray-700">
+                  expectedPriority
+                </span>
+                , hand-labelled against the mock classifier&apos;s keyword table. A result is
+                marked <span className="font-semibold text-emerald-700">Pass</span> only when
+                all three conditions hold:
+              </p>
+              <ol className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold mt-0.5">1</span>
+                  <span>
+                    <span className="font-semibold text-gray-800">Schema valid</span> — the
+                    classifier output passes{" "}
+                    <span className="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">
+                      ClassifierOutputSchema.safeParse()
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold mt-0.5">2</span>
+                  <span>
+                    <span className="font-semibold text-gray-800">Category match</span> —
+                    actual category equals expected category (exact string comparison)
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold mt-0.5">3</span>
+                  <span>
+                    <span className="font-semibold text-gray-800">Priority match</span> —
+                    actual priority equals expected priority (exact string comparison)
+                  </span>
+                </li>
+              </ol>
+            </div>
+
+            <div className="rounded-xl bg-slate-900 p-5 font-mono text-xs text-slate-300 leading-relaxed">
+              <div className="text-slate-500 mb-3">// run-evals.ts — pass logic</div>
+              <div>
+                <span className="text-blue-400">const</span>{" "}
+                <span className="text-white">categoryMatch</span>{" "}
+                <span className="text-slate-400">=</span>
+              </div>
+              <div className="pl-4 text-emerald-400">
+                data.category === tc.expectedCategory<span className="text-slate-400">;</span>
+              </div>
+              <div className="mt-2">
+                <span className="text-blue-400">const</span>{" "}
+                <span className="text-white">priorityMatch</span>{" "}
+                <span className="text-slate-400">=</span>
+              </div>
+              <div className="pl-4 text-emerald-400">
+                data.priority === tc.expectedPriority<span className="text-slate-400">;</span>
+              </div>
+              <div className="mt-2">
+                <span className="text-blue-400">const</span>{" "}
+                <span className="text-white">passed</span>{" "}
+                <span className="text-slate-400">=</span>
+              </div>
+              <div className="pl-4 text-purple-400">
+                categoryMatch{" "}
+                <span className="text-slate-400">&amp;&amp;</span>{" "}
+                priorityMatch
+                <span className="text-slate-400">;</span>
+              </div>
+              <div className="mt-3 text-slate-500">
+                {"// schema failures auto-fail all checks"}
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
   );
